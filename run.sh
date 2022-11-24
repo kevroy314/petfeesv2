@@ -1,1 +1,1 @@
-scrapy runspider rent.py -o rent.jsonl
+scrapy runspider rent.py

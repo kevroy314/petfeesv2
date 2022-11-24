@@ -2,3 +2,4 @@ __pycache__
 *.jl
 *.sqlite
 *.sqlite-journal
+*.gz

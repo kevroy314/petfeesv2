@@ -4,12 +4,13 @@ from uszipcode import SearchEngine
 import cloudscraper
 import logging
 from sqlitedict import SqliteDict
+from scrapy.extensions.postprocessing import GzipPlugin
+import pathlib
 
 logging.getLogger('scrapy.core.scraper').addFilter(
     lambda x: not x.getMessage().startswith('Scraped from'))
 
 SCRAPER = cloudscraper.create_scraper(delay=10, browser={'custom': 'ScraperBot/1.0',})
-SCRAPE_KEYS = SqliteDict("scrape_keys.sqlite")
 
 def get_zips():
     s = SearchEngine()
@@ -31,13 +32,23 @@ class RentSpider(scrapy.Spider):
     name = "rent"
     allowed_domains = ["rent.com"]
     TEST_ZIPS = [78758, 78602, 77450]
-    start_urls = ["https://www.rent.com/zip-{z}-apartments".format(z=z) for z in TEST_ZIPS]#get_zips()[:10]]
+    start_urls = ["https://www.rent.com/zip-{z}-apartments".format(z=z) for z in get_zips()]
     page_urls = []
     handle_httpstatus_list = [403]
     property_urls = []
     custom_settings = {
-        'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7'
+        'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',
+        'FEEDS': {
+            pathlib.Path('%(batch_id)d-items.json.gz'): {
+                'format': 'json',
+                'postprocessing': ['scrapy.extensions.postprocessing.GzipPlugin'],
+                'gzip_compresslevel': 9,
+                'batch_item_count': 100,
+            },
+        }
     }
+    def __init__(self):
+        self.scrape_keys = SqliteDict("scrape_keys.sqlite")
 
     def repair_response(self, response):
         if response.status==403:
@@ -46,10 +57,11 @@ class RentSpider(scrapy.Spider):
         return response
 
     def parse_property(self, response):
-        if response.url in SCRAPE_KEYS:
+        if response.url in self.scrape_keys:
             return
         response = self.repair_response(response)
-        SCRAPE_KEYS[response.url] = True
+        self.scrape_keys[response.url] = True
+        self.scrape_keys.commit()
         yield {
             'response.body': str(response.body),
             'response.url': str(response.url),
@@ -57,12 +69,16 @@ class RentSpider(scrapy.Spider):
         }
 
     def parse(self, response):
-        if response.url in SCRAPE_KEYS:
+        if response.url in self.scrape_keys:
             return
         response = self.repair_response(response)
-        SCRAPE_KEYS[response.url] = True
+        self.scrape_keys[response.url] = True
+        self.scrape_keys.commit()
         pages, properties = get_important_urls(response.body)
         for page in pages:
             yield response.follow(page, self.parse)
         for property in properties:
             yield response.follow(property, self.parse_property)
+
+    def closed(self, reason):
+        self.scrape_keys.close()
