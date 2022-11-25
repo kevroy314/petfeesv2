@@ -12,3 +12,4 @@ seaborn==0.12.1
 tqdm==4.64.1
 uszipcode==1.0.1
 cloudscraper==1.2.66
+sqlitedict==2.0.0
