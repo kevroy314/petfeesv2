@@ -1,9 +1,9 @@
 from sqlitedict import SqliteDict
 import os
 
-files = os.listdir('.')
-sizes = [os.path.getsize(x) for x in files if x.endswith('-items.json.gz')]
-db = SqliteDict('scrape_keys.sqlite')
+files = os.listdir('./data')
+sizes = [os.path.getsize(os.path.join('./data', x)) for x in files if x.endswith('-items.json.gz')]
+db = SqliteDict('./data/tracking/scrape_keys.sqlite')
 n = len(list(db.keys()))
 mbs = sum(sizes)/1000000
 nzips = 30001

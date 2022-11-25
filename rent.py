@@ -39,7 +39,7 @@ class RentSpider(scrapy.Spider):
     custom_settings = {
         'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',
         'FEEDS': {
-            pathlib.Path('%(batch_id)d-items.json.gz'): {
+            pathlib.Path('data/%(batch_id)d-items-%(batch_time)s.json.gz'): {
                 'format': 'json',
                 'postprocessing': ['scrapy.extensions.postprocessing.GzipPlugin'],
                 'gzip_compresslevel': 9,
@@ -48,7 +48,7 @@ class RentSpider(scrapy.Spider):
         }
     }
     def __init__(self):
-        self.scrape_keys = SqliteDict("scrape_keys.sqlite")
+        self.scrape_keys = SqliteDict("data/tracking/scrape_keys.sqlite")
 
     def repair_response(self, response):
         if response.status==403:
