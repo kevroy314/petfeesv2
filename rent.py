@@ -6,6 +6,8 @@ import logging
 from sqlitedict import SqliteDict
 from scrapy.extensions.postprocessing import GzipPlugin
 import pathlib
+import os
+import config
 
 logging.getLogger('scrapy.core.scraper').addFilter(
     lambda x: not x.getMessage().startswith('Scraped from'))
@@ -39,7 +41,7 @@ class RentSpider(scrapy.Spider):
     custom_settings = {
         'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',
         'FEEDS': {
-            pathlib.Path('data/%(batch_id)d-items-%(batch_time)s.json.gz'): {
+            pathlib.Path(os.path.join(config.DATA_PATH, '%(batch_id)d-items-%(batch_time)s.json.gz')): {
                 'format': 'json',
                 'postprocessing': ['scrapy.extensions.postprocessing.GzipPlugin'],
                 'gzip_compresslevel': 9,
@@ -48,7 +50,7 @@ class RentSpider(scrapy.Spider):
         }
     }
     def __init__(self):
-        self.scrape_keys = SqliteDict("data/tracking/scrape_keys.sqlite")
+        self.scrape_keys = SqliteDict(config.SCRAPE_KEYS_FILEPATH)
 
     def repair_response(self, response):
         if response.status==403:
