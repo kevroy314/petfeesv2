@@ -1,1 +1,0 @@
-watch python print_size.py

@@ -13,3 +13,4 @@ tqdm==4.64.1
 uszipcode==1.0.1
 cloudscraper==1.2.66
 sqlitedict==2.0.0
+python-Levenshtein==0.20.8

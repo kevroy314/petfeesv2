@@ -6,7 +6,9 @@ import logging
 from sqlitedict import SqliteDict
 import pathlib
 import os
-import config
+import petfees.config as config
+
+# TODO: Make output location rent specific
 
 logging.getLogger('scrapy.core.scraper').addFilter(
     lambda x: not x.getMessage().startswith('Scraped from'))

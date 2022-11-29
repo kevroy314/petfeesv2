@@ -1,1 +1,0 @@
-cp -r -u data/* dropbox_data/
