@@ -5,3 +5,4 @@ __pycache__
 *.gz
 data/
 data
+dropbox_data
