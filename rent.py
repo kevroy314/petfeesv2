@@ -4,7 +4,6 @@ from uszipcode import SearchEngine
 import cloudscraper
 import logging
 from sqlitedict import SqliteDict
-from scrapy.extensions.postprocessing import GzipPlugin
 import pathlib
 import os
 import config
