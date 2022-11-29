@@ -34,7 +34,8 @@ class RentSpider(scrapy.Spider):
     name = "rent"
     allowed_domains = ["rent.com"]
     TEST_ZIPS = [78758, 78602, 77450]
-    start_urls = ["https://www.rent.com/zip-{z}-apartments".format(z=z) for z in get_zips()]
+    start_urls = list(sorted(list(set(["https://www.rent.com/zip-{z}-apartments".format(z=z) for z in get_zips()]) - 
+                      set([x for x in list(SqliteDict(config.SCRAPE_KEYS_FILEPATH).keys()) if 'zip-' in x]))))
     page_urls = []
     handle_httpstatus_list = [403]
     property_urls = []
